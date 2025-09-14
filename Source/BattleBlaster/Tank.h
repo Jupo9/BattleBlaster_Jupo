@@ -4,6 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "BasePawn.h"
+
+#include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
+
+#include "InputAction.h"
+#include "InputActionValue.h"
+#include "EnhancedInputComponent.h"
+
 #include "Tank.generated.h"
 
 /**
@@ -20,12 +28,31 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USpringArmComponent* springArm;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCameraComponent* camera;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* defaultMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* moveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* turnAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* fireAction;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float speed = 100.f;
@@ -33,7 +60,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float turnSpeed = 50.f;
 
-	void Move(float value);
-
-	void Turn(float value);
+	void MoveInput(const FInputActionValue& value);
+	void TurnInput(const FInputActionValue& value);
 };

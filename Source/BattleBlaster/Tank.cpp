@@ -15,26 +15,73 @@ ATank::ATank()
 	camera->SetupAttachment(springArm);
 }
 
+// Called when the game starts or when spawned
+void ATank::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (APlayerController* playerController = Cast<APlayerController>(Controller))
+	{
+		if (ULocalPlayer* localPlayer = playerController->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem * subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(localPlayer))
+			{
+				subsystem->AddMappingContext(defaultMappingContext, 0);
+			}
+		}
+	}
+}
+
+// Called every frame
+void ATank::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (APlayerController* playerController = Cast<APlayerController>(GetController()))
+	{
+		FHitResult hitResult;
+		playerController->GetHitResultUnderCursor(ECC_Visibility, false, hitResult);
+
+		RotateTurret(hitResult.ImpactPoint);
+
+		/*Draw debug sphere where the cursor is pointing :
+		DrawDebugSphere(GetWorld(), hitResult.ImpactPoint, 25.f, 12, FColor::Red, false, -1.f);
+		needs: #include "DrawDebugHelpers.h" , to work!!!
+		*/
+	} 
+}
+
 void ATank::SetupPlayerInputComponent(UInputComponent* playerInputComponent)
 {
 	Super::SetupPlayerInputComponent(playerInputComponent);
 
-	playerInputComponent->BindAxis("MoveForward", this, &ATank::Move);
-	playerInputComponent->BindAxis("Turn", this, &ATank::Turn);
+	UEnhancedInputComponent* uEIC = CastChecked<UEnhancedInputComponent>(playerInputComponent);
+	if (uEIC)
+	{
+		uEIC->BindAction(moveAction, ETriggerEvent::Triggered, this, &ATank::MoveInput);
+
+		uEIC->BindAction(turnAction, ETriggerEvent::Triggered, this, &ATank::TurnInput);
+
+		uEIC->BindAction(fireAction, ETriggerEvent::Started, this, &ATank::Fire);
+	}
 }
 
-void ATank::Move(float value)
+void ATank::MoveInput(const FInputActionValue& value)
 {
-	FVector deltaLocation = FVector::ZeroVector;
+	float inputValue = value.Get<float>();
 
-	deltaLocation.X = value * speed * UGameplayStatics::GetWorldDeltaSeconds(this);
+	FVector deltaLocation = FVector(0.f, 0.f, 0.f);
+
+	deltaLocation.X = inputValue * speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 	AddActorLocalOffset(deltaLocation, true);
 }
 
-void ATank::Turn(float value)
+void ATank::TurnInput(const FInputActionValue& value)
 {
-	FRotator deltaRotation = FRotator::ZeroRotator;
+	float inputValue = value.Get<float>();
 
-	deltaRotation.Yaw = value * turnSpeed * UGameplayStatics::GetWorldDeltaSeconds(this);
+	FRotator deltaRotation = FRotator(0.f, 0.f, 0.f);
+
+	deltaRotation.Yaw = inputValue * turnSpeed * GetWorld()->GetDeltaSeconds();
 	AddActorLocalRotation(deltaRotation, true);
 }
