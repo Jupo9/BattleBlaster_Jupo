@@ -44,10 +44,7 @@ void ATank::Tick(float DeltaTime)
 
 		RotateTurret(hitResult.ImpactPoint);
 
-		/*Draw debug sphere where the cursor is pointing :
-		DrawDebugSphere(GetWorld(), hitResult.ImpactPoint, 25.f, 12, FColor::Red, false, -1.f);
-		needs: #include "DrawDebugHelpers.h" , to work!!!
-		*/
+		//DrawDebugSphere(GetWorld(), hitResult.ImpactPoint, 25.f, 12, FColor::Red, false, -1.f);
 	} 
 }
 
