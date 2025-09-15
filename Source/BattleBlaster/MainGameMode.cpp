@@ -3,8 +3,10 @@
 
 #include "MainGameMode.h"
 #include "Kismet/GameplayStatics.h"
+
 #include "Tower.h"
 #include "Tank.h"
+
 #include "MainGameInstance.h"
 
 void AMainGameMode::BeginPlay()
@@ -41,6 +43,18 @@ void AMainGameMode::BeginPlay()
 		loopIndex++;
 	}
 
+	APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (playerController)
+	{
+		screenMessageWidget = CreateWidget<UScreenMessage>(playerController, screenMessageClass);
+		if (screenMessageWidget)
+		{
+			screenMessageWidget->AddToPlayerScreen();
+			screenMessageWidget->SetMessageText("Get Ready!");
+		}
+	}
+	
+
 	countdownSeconds = countdownDelay;
 	GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &AMainGameMode::OnCountdownTimerTimeout, 1.f, true);
 }
@@ -51,15 +65,17 @@ void AMainGameMode::OnCountdownTimerTimeout()
 
 	if (countdownSeconds > 0)
 	{
-
+		screenMessageWidget->SetMessageText(FString::FromInt(countdownSeconds));
 	}
 	else if (countdownSeconds == 0)
 	{
+		screenMessageWidget->SetMessageText("Go!");
 		tankActor->SetPlayerEnabled(true);
 	}
 	else
 	{
 		GetWorldTimerManager().ClearTimer(countdownTimerHandle);
+		screenMessageWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 }
@@ -97,6 +113,9 @@ void AMainGameMode::ActorDied(AActor* deadActor)
 	if (isGameOver)
 	{
 		FString gameOverString = isVictory ? "Victory!" : "Defeat!";
+
+		screenMessageWidget->SetMessageText(gameOverString);
+		screenMessageWidget->SetVisibility(ESlateVisibility::Visible);
 
 		FTimerHandle gameOverTimerHandle;
 		GetWorldTimerManager().SetTimer(gameOverTimerHandle, this, &AMainGameMode::OnGameOverTimerTimeout, gameOverDelay, false);

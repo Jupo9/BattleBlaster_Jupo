@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 
 #include "Tank.h"
+#include "ScreenMessage.h"
 
 #include "MainGameMode.generated.h"
 
@@ -27,10 +28,15 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere)
-	float gameOverDelay = 3.f;
+	TSubclassOf<UScreenMessage> screenMessageClass;
+
+	UScreenMessage* screenMessageWidget;
 
 	UPROPERTY(EditAnywhere)
-	int32 countdownDelay = 3;
+	float gameOverDelay = 1.5f;
+
+	UPROPERTY(EditAnywhere)
+	int32 countdownDelay = 4;
 
 	int32 countdownSeconds;
 

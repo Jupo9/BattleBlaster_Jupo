@@ -51,7 +51,22 @@ void ABasePawn::Fire()
 
 void ABasePawn::HandleDestruction()
 {
-
+	if (deathParticles)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), deathParticles, GetActorLocation(), GetActorRotation());
+	}
+	if (deathSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), deathSound, GetActorLocation());
+	}
+	if (deathCameraShakeClass)
+	{
+		APlayerController* playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (playerController)
+		{
+			playerController->ClientStartCameraShake(deathCameraShakeClass);
+		}
+	}
 }
 
 
