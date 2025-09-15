@@ -2,6 +2,7 @@
 
 
 #include "HealthComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -22,6 +23,12 @@ void UHealthComponent::BeginPlay()
 	currentHealth = maxHealth;
 
 	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::OnDamageTaken);
+
+	AGameModeBase* gameMode = UGameplayStatics::GetGameMode(GetWorld());
+	if (gameMode)
+	{
+		mainGameMode = Cast<AMainGameMode>(gameMode);
+	}
 	
 }
 
@@ -41,7 +48,10 @@ void UHealthComponent::OnDamageTaken(AActor* damagedActor, float damage, const U
 		currentHealth -= damage;
 		if (currentHealth <= 0.f)
 		{
-			GetOwner()->Destroy();
+			if (mainGameMode)
+			{
+				mainGameMode->ActorDied(damagedActor);
+			}
 		}
 	}
 }

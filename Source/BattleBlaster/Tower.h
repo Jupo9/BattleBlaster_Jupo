@@ -35,4 +35,6 @@ public:
 
 	void CkeckFireCondition();
 	bool isInFireRange();
+
+	void HandleDestruction();
 };

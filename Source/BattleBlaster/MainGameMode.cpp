@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Tower.h"
 #include "Tank.h"
+#include "MainGameInstance.h"
 
 void AMainGameMode::BeginPlay()
 {
@@ -40,10 +41,84 @@ void AMainGameMode::BeginPlay()
 		loopIndex++;
 	}
 
+	countdownSeconds = countdownDelay;
+	GetWorldTimerManager().SetTimer(countdownTimerHandle, this, &AMainGameMode::OnCountdownTimerTimeout, 1.f, true);
+}
+
+void AMainGameMode::OnCountdownTimerTimeout()
+{
+	countdownSeconds -= 1;
+
+	if (countdownSeconds > 0)
+	{
+
+	}
+	else if (countdownSeconds == 0)
+	{
+		tankActor->SetPlayerEnabled(true);
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(countdownTimerHandle);
+	}
 
 }
 
 void AMainGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AMainGameMode::ActorDied(AActor* deadActor)
+{
+	bool isGameOver = false;
+
+	if (deadActor == tankActor)
+	{
+		tankActor->HandleDestruction();
+		isGameOver = true;
+	}
+	else
+	{
+		ATower* deadTower = Cast<ATower>(deadActor);
+		if (deadTower)
+		{
+			deadTower->HandleDestruction();
+
+			towerCount--;
+			if (towerCount <= 0)
+			{
+				isGameOver = true;
+				isVictory = true;
+			}
+		}
+	}
+
+	if (isGameOver)
+	{
+		FString gameOverString = isVictory ? "Victory!" : "Defeat!";
+
+		FTimerHandle gameOverTimerHandle;
+		GetWorldTimerManager().SetTimer(gameOverTimerHandle, this, &AMainGameMode::OnGameOverTimerTimeout, gameOverDelay, false);
+	}
+}
+
+void AMainGameMode::OnGameOverTimerTimeout()
+{
+	UGameInstance* gameInstance = GetGameInstance();
+	if (gameInstance)
+	{
+		UMainGameInstance* mainGameInstance = Cast<UMainGameInstance>(gameInstance);
+		if (mainGameInstance)
+		{
+			if (isVictory)
+			{
+				mainGameInstance->LoadNextLevel();
+			}
+			else
+			{
+				mainGameInstance->RestartCurrentLevel();
+			}
+		}
+	}
 }

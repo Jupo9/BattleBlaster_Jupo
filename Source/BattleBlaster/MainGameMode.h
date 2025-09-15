@@ -26,6 +26,23 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	UPROPERTY(EditAnywhere)
+	float gameOverDelay = 3.f;
+
+	UPROPERTY(EditAnywhere)
+	int32 countdownDelay = 3;
+
+	int32 countdownSeconds;
+
+	FTimerHandle countdownTimerHandle;
+
+	bool isVictory = false;
+
 	ATank* tankActor;
 	int32 towerCount;
+
+	void ActorDied(AActor* deadActor);
+
+	void OnGameOverTimerTimeout();
+	void OnCountdownTimerTimeout();
 };

@@ -23,7 +23,7 @@ void ATower::Tick(float DeltaTime)
 
 void ATower::CkeckFireCondition()
 {
-	if (isInFireRange())
+	if (isInFireRange() && tank->isAlive)
 	{
 		Fire();
 	}
@@ -41,4 +41,11 @@ bool ATower::isInFireRange()
 	}
 
 	return result;
+}
+
+void ATower::HandleDestruction()
+{
+	Super::HandleDestruction();
+
+	Destroy();
 }

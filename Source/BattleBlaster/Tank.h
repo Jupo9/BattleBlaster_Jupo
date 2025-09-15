@@ -42,6 +42,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCameraComponent* camera;
 
+	UPROPERTY(VisibleAnywhere, Category = "Tank Stats")
+	bool isAlive = true;
+
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* defaultMappingContext;
 
@@ -60,6 +63,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float turnSpeed = 50.f;
 
+	APlayerController* playerController;
+
 	void MoveInput(const FInputActionValue& value);
 	void TurnInput(const FInputActionValue& value);
+
+	void HandleDestruction();
+	void SetPlayerEnabled(bool enabled);
 };

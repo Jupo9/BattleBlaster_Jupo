@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
+#include "MainGameMode.h"
+
 #include "HealthComponent.generated.h"
 
 
@@ -29,6 +32,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	float currentHealth;
+
+	AMainGameMode* mainGameMode;
 
 	UFUNCTION()
 	void OnDamageTaken(AActor* damagedActor, float damage, const UDamageType* damageType, AController* instigatedBy, AActor* damageCauser);
